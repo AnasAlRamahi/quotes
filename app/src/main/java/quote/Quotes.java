@@ -16,6 +16,11 @@ public class Quotes {
         this.text = text;
     }
 
+    public Quotes(String author, String text, String patata) {
+        this.author = author;
+        this.text = text;
+    }
+
     public String getAuthor() {
         return author;
     }
