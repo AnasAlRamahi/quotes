@@ -109,7 +109,7 @@ public class Quotes {
                 }
 
                 try {
-                    FileWriter fstream = new FileWriter("recenquotes.json");
+                    FileWriter fstream = new FileWriter("recentquotes.json");
                     BufferedWriter out = new BufferedWriter(fstream);
                     out.write(gson.toJson(userArray));
                     out.close();
