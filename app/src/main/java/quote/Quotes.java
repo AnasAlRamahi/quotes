@@ -1,12 +1,16 @@
 package quote;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,7 +70,7 @@ public class Quotes {
         FileReader file = new FileReader(place);
         Gson gson = new Gson();
         List<Quotes> quotes = Arrays.asList(gson.fromJson(file, Quotes[].class));
-        int randomNumber = (int)(Math.random()*quotes.size());
+        int randomNumber = (int) (Math.random() * quotes.size());
         return quotes.get(randomNumber).toString();
     }
 
@@ -92,30 +96,40 @@ public class Quotes {
 
                 Quotes s = gson.fromJson(line, Quotes.class);
                 String result = "From API:\nAuthor: " + s.getQuoteAuthor() + "\nQuote: " + s.getQuoteText();
-//                System.out.println("From API:\nAuthor: " + s.getQuoteAuthor() + "\nQuote: " + s.getQuoteText());
 
-                //to add the quote from the api to the json file:
-//                FileReader file = new FileReader("recentquotes.json");
+                FileReader file = new FileReader("recentquotes.json");
 //                List<Quotes> quotes = Arrays.asList(gson.fromJson(file, Quotes[].class));
-//                if(!quotes.contains(s)){
-//                    quotes.add(s);
-//                }
-//
-//                Writer writer = Files.newBufferedWriter(Paths.get("recentquotes.json"));
-//                gson.toJson(quotes, writer);
-//                writer.close();
+                Quotes newQuote = new Quotes(s.getQuoteAuthor(), s.getQuoteText());
 
+                Type userListType = new TypeToken<ArrayList<Quotes>>(){}.getType();
+                ArrayList<Quotes> userArray = gson.fromJson(file, userListType);
+
+                if (!userArray.contains(s)) {
+                    userArray.add(newQuote);
+                }
+
+                try {
+                    FileWriter fstream = new FileWriter("recenquotes.json");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(gson.toJson(userArray));
+                    out.close();
+                } catch (Exception e) {
+                    System.err.println("Error while writing to file: " +
+                            e.getMessage());
+                }
 
                 return result;
 
             } else {
                 connection.disconnect();
+                System.out.println("else");
                 System.out.println(Quotes.randomQuote("recentquotes.json"));
                 return Quotes.randomQuote("recentquotes.json");
             }
 
 
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(Quotes.randomQuote("recentquotes.json"));
             return Quotes.randomQuote("recentquotes.json");
         }
